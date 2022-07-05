@@ -1,0 +1,73 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using TanPhucShopApi.DTO;
+using TanPhucShopApi.Models.DTO.RoleDto;
+using TanPhucShopApi.Models.DTO.UserDto;
+using TanPhucShopApi.Services.RoleService;
+using TanPhucShopApi.Services.UserService;
+
+namespace TanPhucShopApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class RolesController : ControllerBase
+    {
+        private IRoleService roleService;
+        private IConfiguration configuration;
+        private string BASE_URL;
+        public RolesController(IRoleService _roleService, IConfiguration _configuration)
+        {
+            roleService = _roleService;
+            configuration = _configuration;
+            BASE_URL = configuration["BASE_URL"] + "roles";
+        }
+
+        [HttpGet]
+        public IActionResult GetAllRoleDto()
+        {
+            var roles =  roleService.GetAllRoles();
+            return Ok(roles);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateRoleDto role)
+        {
+            var result = await roleService.Create(role);
+            if(result) return Ok(role);
+            return BadRequest();
+        }
+
+
+        [HttpPut("id")]
+        public async Task<IActionResult> Update(int id,[FromBody] UpdateRoleDto role)
+        {
+            var result = await roleService.Update(id,role);
+            if (result) return Ok(role);
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (await roleService.GetRoleById(id) == null) return NotFound();
+            else
+            {
+                var result = await roleService.Delete(id);
+                if (result == true)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var userDTO = await roleService.GetRoleById(id);
+            if(userDTO == null) return NotFound();
+            return Ok(userDTO); 
+        }
+    }
+}
