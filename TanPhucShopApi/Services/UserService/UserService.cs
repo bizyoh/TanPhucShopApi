@@ -56,7 +56,17 @@ namespace TanPhucShopApi.Services.UserService
             return false;
         }
 
-      
+        public async Task<bool> ChangeStatusUser(int id)
+        {
+            var user = await userManager.FindByIdAsync(id.ToString());
+            if (user != null)
+            {
+                user.Status = !user.Status;
+                IdentityResult res = await userManager.UpdateAsync(user);
+                if (res.Succeeded) return true;
+            }
+            return false;
+        }
 
         public async Task<CreatedUserDto> Create(RegisterUserDto registerUserDto)
         {

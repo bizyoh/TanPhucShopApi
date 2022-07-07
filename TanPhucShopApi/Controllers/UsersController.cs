@@ -22,6 +22,7 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpGet]
+        //[Authorize(Roles ="Admin")]
         public IActionResult GetAllUserDto()
         {
             var users =  userService.GetAll();
@@ -36,6 +37,40 @@ namespace TanPhucShopApi.Controllers
 
             return Created(BASE_URL + "/" + createdUser.Id, createdUser);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(int id,UpdateUserDto updateUserDto)
+        {
+            var user = await userService.FindUserById(id);
+            if (user == null) return NotFound();
+            else
+            {
+                var Result = await userService.Update(id,updateUserDto);
+                if (Result == true)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
+        [HttpGet("status/{id}")]
+        public async Task<IActionResult> ChangeStatusUser(int id)
+        {
+            var user = await userService.FindUserById(id);
+            if (user == null) return NotFound();
+            else
+            {
+                var Result = await userService.ChangeStatusUser(id);
+                if (Result == true)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
+
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)

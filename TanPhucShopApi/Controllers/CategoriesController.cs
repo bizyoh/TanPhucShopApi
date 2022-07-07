@@ -9,10 +9,10 @@ namespace TanPhucShopApi.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private IInvoiceService categoryService;
+        private ICategoryService categoryService;
         private IConfiguration configuration;
         private string BASE_URL;
-        public CategoriesController(IInvoiceService _categoryService, IConfiguration _configuration)
+        public CategoriesController(ICategoryService _categoryService, IConfiguration _configuration)
         {
             categoryService = _categoryService;
             configuration = _configuration;
@@ -24,7 +24,7 @@ namespace TanPhucShopApi.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("status")]
+        [HttpGet("{status}")]
         public IActionResult GetAllCategoryByStatus(bool status)
         {
             var categories = categoryService.GetAllCategoryByStatus(status);

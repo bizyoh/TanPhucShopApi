@@ -5,11 +5,11 @@ using TanPhucShopApi.Models.DTO.Category;
 
 namespace TanPhucShopApi.Services.CategoryService
 {
-    public class InvoiceService : IInvoiceService
+    public class CategoryService : ICategoryService
     {
         private AppDBContext db;
         private IMapper mapper;
-        public InvoiceService(AppDBContext _db,IMapper _mapper)
+        public CategoryService(AppDBContext _db,IMapper _mapper)
         {
             db=_db;
             mapper = _mapper;
@@ -75,6 +75,16 @@ namespace TanPhucShopApi.Services.CategoryService
                 return db.SaveChanges() > 0;
             }
             return false;
+        }
+
+        public List<CategoryDto> GetAllCategoryDtoByStatus(bool status)
+        {
+            var categoryDtos = db.Categories.Where(x=>x.Status== status).Select(x=>new CategoryDto
+            {
+                Id=x.Id,
+                Name=x.Name
+            }).ToList();
+            return categoryDtos;
         }
     }
 }

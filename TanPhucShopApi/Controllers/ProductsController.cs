@@ -27,6 +27,21 @@ namespace TanPhucShopApi.Controllers
             return Ok(products);
         }
 
+        [HttpGet("3/products")]
+        public IActionResult GetAllProductTop3ByDate()
+        {
+            var products = productService.GetAllProductsDtoTop3ByDate();
+            return Ok(products);
+        }
+
+        [HttpGet("status={statusUri}")]
+        public IActionResult GetAllProductsDtoByStatus(string statusUri)
+        {
+            var status = bool.Parse(statusUri);
+            var products = productService.GetAllProductsDtoByStatus(status);
+            return Ok(products);
+        }
+
         [HttpPost]
         public IActionResult Create(CreateProductDto createProductDto)
         {
@@ -58,6 +73,31 @@ namespace TanPhucShopApi.Controllers
             {
                 var result = productService.HardDelete(id);
                 if(result) return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpPost("uploadphoto/{id}")]
+        public IActionResult UploadPhoto(int id,  IFormFile file)
+        {
+            try
+            {
+                return Ok(productService.UploadPhoto(id, file));
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetDetailProductById(int id)
+        {
+            var product = productService.GetDetailProductDtoById(id);
+            if (product == null) return NotFound();
+            else
+            {
+                return Ok(product);
             }
             return BadRequest();
         }
