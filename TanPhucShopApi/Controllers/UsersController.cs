@@ -39,13 +39,13 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int id, UpdateUserDto updateUserDto)
+        public async Task<IActionResult> UpdateByuser(int id, UpdateUserDto updateUserDto)
         {
             var user = await userService.FindUserById(id);
             if (user == null) return NotFound();
             else
             {
-                var Result = await userService.Update(id, updateUserDto);
+                var Result = await userService.UpdateByUser(id, updateUserDto);
                 if (Result == true)
                 {
                     return Ok();
@@ -53,6 +53,23 @@ namespace TanPhucShopApi.Controllers
             }
             return BadRequest();
         }
+
+        [HttpPut("{id}/admin")]
+        public async Task<IActionResult> UpdateByAdmin(int id, AdminUpdateUserDto adminUpdateUserDto)
+        {
+            var user = await userService.FindUserById(id);
+            if (user == null) return NotFound(MessageErrors.NotFound);
+            else
+            {
+                var Result = await userService.UpdateByAdmin(id, adminUpdateUserDto);
+                if (Result == true)
+                {
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
 
         [HttpGet("status/{id}")]
         public async Task<IActionResult> ChangeStatusUser(int id)
@@ -106,17 +123,17 @@ namespace TanPhucShopApi.Controllers
 
 
         [HttpGet("RemoveRole")]
-        public async Task<IActionResult> RemoveRolesUser(string name)
+        public async Task<IActionResult> RemoveRolesUser(UserRoleDto removeUserRoleDTO)
         {
             var result = await userService.RemoveRoleUser(removeUserRoleDTO);
             if (result) return Ok();
             return BadRequest();
         }
 
-        [HttpPost("AddRole")]
-        public async Task<IActionResult> AddRolesUser([FromBody] UserRoleDto AddUserRoleDTO)
+        [HttpPost("AddRole/{id}")]
+        public async Task<IActionResult> AddRolesUser(int id,[FromBody] IList<string> roles)
         {
-            var result = await userService.AddRoleUser(AddUserRoleDTO);
+            var result = await userService.AddRoleUser(id,roles);
             if (result) return Ok();
             return BadRequest();
         }

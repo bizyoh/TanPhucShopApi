@@ -12,6 +12,8 @@ namespace TanPhucShopApi.Mapper
             CreateMap<User, CreatedUserDto>();
             CreateMap<User, DetailUserDto>();
             CreateMap<User, AccessedUserDto>();
+            CreateMap<User, AdminUpdateUserDto>();
+            CreateMap<AdminUpdateUserDto, User>();
 
         }
     }
