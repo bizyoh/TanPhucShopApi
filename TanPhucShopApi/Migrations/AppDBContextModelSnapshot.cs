@@ -143,7 +143,7 @@ namespace TanPhucShopApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("TanPhucShopApi.Models.Invoice", b =>
@@ -167,7 +167,7 @@ namespace TanPhucShopApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Invoices");
+                    b.ToTable("Invoices", (string)null);
                 });
 
             modelBuilder.Entity("TanPhucShopApi.Models.InvoiceDetail", b =>
@@ -193,7 +193,7 @@ namespace TanPhucShopApi.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InvoiceDetails");
+                    b.ToTable("InvoiceDetails", (string)null);
                 });
 
             modelBuilder.Entity("TanPhucShopApi.Models.Product", b =>
@@ -236,7 +236,7 @@ namespace TanPhucShopApi.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("TanPhucShopApi.Models.Role", b =>

@@ -35,6 +35,17 @@ namespace TanPhucShopApi.Services.RoleService
             return false;
         }
 
+        public async Task<bool> Delete(string name)
+        {
+            var role = await GetRoleByName(name);
+            if (role != null)
+            {
+                var result = await roleManager.DeleteAsync(role);
+                if (result.Succeeded) return true;
+            }
+            return false;
+        }
+
         public List<GetAllRoleDto> GetAllRoles()
         {
             return roleManager.Roles.Select(p => new GetAllRoleDto

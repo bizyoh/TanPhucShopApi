@@ -13,6 +13,7 @@ using TanPhucShopApi.Services.RoleService;
 using TanPhucShopApi.Services.UserService;
 using FluentValidation.AspNetCore;
 using TanPhucShopApi.Validatiors.User;
+using TanPhucShopApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseStaticFiles();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,14 +1,19 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.SecurityTokenService;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web.Http;
 using TanPhucShopApi.Data;
 using TanPhucShopApi.DTO;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models;
+using TanPhucShopApi.Models.DTO.RoleDto;
 using TanPhucShopApi.Models.DTO.UserDto;
 
 namespace TanPhucShopApi.Services.UserService
@@ -74,25 +79,30 @@ namespace TanPhucShopApi.Services.UserService
             if (registerUserDto is null) return null;
             else
             {
-                User user = mapper.Map<User>(registerUserDto);
+                var user = await userManager.FindByNameAsync(registerUserDto.UserName);
+                if(user != null)
                 {
-                    var a = db.Database.CreateExecutionStrategy();
-                    await a.ExecuteAsync(async () =>
-                    {
-                        using var transaction = await db.Database.BeginTransactionAsync();
-                        var result = await userManager.CreateAsync(user,registerUserDto.Password);
-                        if (result.Succeeded)
-                        {
-                            await userManager.AddToRoleAsync(user, "User");
-                            await transaction.CommitAsync();
-                            mapper.Map(user, createdUserDto);
-                        }
-                        else
-                        {
-                            transaction?.Rollback();
-                        }
-                    });
+                    throw new AppException(MessageErrors.UniqueUser); 
                 }
+                user = mapper.Map<User>(registerUserDto);
+                user.Status = true;
+                var a = db.Database.CreateExecutionStrategy();
+                await a.ExecuteAsync(async () =>
+                {
+                    using var transaction = await db.Database.BeginTransactionAsync();
+                    var result = await userManager.CreateAsync(user,registerUserDto.Password);
+                    if (result.Succeeded)
+                    {
+
+                        await userManager.AddToRoleAsync(user, "User");
+                        await transaction.CommitAsync();
+                        mapper.Map(user, createdUserDto);
+                    }
+                    else
+                    {
+                        transaction?.Rollback();
+                    }
+                });
             }
             return createdUserDto;
         }
@@ -132,13 +142,16 @@ namespace TanPhucShopApi.Services.UserService
 
         public async Task<DetailUserDto> FindDetailUserDtoById(int id)
         {
-            var user = await FindUserById(id);
+            var user = await userManager.FindByIdAsync(id.ToString()) ;
+            
             if (user != null)
             {
+                var roles = await userManager.GetRolesAsync(user);
                 var detailUserDto = mapper.Map<DetailUserDto>(user);
+                detailUserDto.Roles = roles;
                 return detailUserDto;
             }
-            return null;
+            throw new KeyNotFoundException(MessageErrors.NotFound);
         }
 
         public async Task<User> FindUserById(int id)
@@ -166,7 +179,7 @@ namespace TanPhucShopApi.Services.UserService
         public async Task<AccessedUserDto> Login(LoginUserDto loginUserDto)
         {
             var user = await userManager.FindByNameAsync(loginUserDto.UserNameOrEmail);
-            if (user != null)
+            if (user != null && user.Status!=false)
             {
                 SignInResult resultLogInWithUserName = await signManager.CheckPasswordSignInAsync(user, loginUserDto.Password, false);
                 if (resultLogInWithUserName.Succeeded)
@@ -181,7 +194,7 @@ namespace TanPhucShopApi.Services.UserService
             else
             {
                 user = await userManager.FindByEmailAsync(loginUserDto.UserNameOrEmail);
-                if (user != null)
+                if (user != null && user.Status != false)
                 {
                     var resultLogInWithEmail = await signManager.CheckPasswordSignInAsync(user, loginUserDto.Password, false);
                     if (resultLogInWithEmail.Succeeded)
@@ -245,6 +258,14 @@ namespace TanPhucShopApi.Services.UserService
             RefreshToken token = new RefreshToken();
             token.Token = Convert.ToBase64String(randomNumber);
             return token;
+        }
+
+        private List<Claim> DecodeToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var tokenDecode = handler.ReadJwtToken(token);
+            var claims = tokenDecode.Claims.Where(x => x.Type == "Role").ToList();
+            return claims;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TanPhucShopApi.DTO;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models.DTO.UserDto;
 using TanPhucShopApi.Services.UserService;
 
@@ -25,27 +26,26 @@ namespace TanPhucShopApi.Controllers
         //[Authorize(Roles ="Admin")]
         public IActionResult GetAllUserDto()
         {
-            var users =  userService.GetAll();
+            var users = userService.GetAll();
             return Ok(users);
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Create([FromBody] RegisterUserDto user)
+        public async Task<IActionResult> Create(RegisterUserDto registerUserDto)
         {
-            var createdUser = await userService.Create(user);
+            var createdUser = await userService.Create(registerUserDto);
 
             return Created(BASE_URL + "/" + createdUser.Id, createdUser);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int id,UpdateUserDto updateUserDto)
+        public async Task<IActionResult> Update(int id, UpdateUserDto updateUserDto)
         {
             var user = await userService.FindUserById(id);
             if (user == null) return NotFound();
             else
             {
-                var Result = await userService.Update(id,updateUserDto);
+                var Result = await userService.Update(id, updateUserDto);
                 if (Result == true)
                 {
                     return Ok();
@@ -92,12 +92,21 @@ namespace TanPhucShopApi.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var userDTO = await userService.FindUserById(id);
-            if(userDTO == null) return NotFound();
-            return Ok(userDTO); 
+            if (userDTO == null) return NotFound();
+            return Ok(userDTO);
         }
 
-        [HttpPost("RemoveRole")]
-        public async Task<IActionResult> RemoveRolesUser([FromBody] UserRoleDto removeUserRoleDTO)
+        [HttpGet("{id}/detail")]
+        public async Task<IActionResult> FindDetailUserDtoById(int id)
+        {
+            var userDTO = await userService.FindDetailUserDtoById(id);
+            if (userDTO == null) return NotFound(MessageErrors.NotFound);
+            return Ok(userDTO);
+        }
+
+
+        [HttpGet("RemoveRole")]
+        public async Task<IActionResult> RemoveRolesUser(string name)
         {
             var result = await userService.RemoveRoleUser(removeUserRoleDTO);
             if (result) return Ok();
