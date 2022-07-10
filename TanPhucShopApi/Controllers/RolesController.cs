@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TanPhucShopApi.DTO;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models.DTO.RoleDto;
 using TanPhucShopApi.Models.DTO.UserDto;
 using TanPhucShopApi.Services.RoleService;
@@ -34,16 +35,17 @@ namespace TanPhucShopApi.Controllers
         public async Task<IActionResult> Create([FromBody] CreateRoleDto role)
         {
             var result = await roleService.Create(role);
-            if(result) return Ok(role);
+            if(result) return Ok();
             return BadRequest();
         }
 
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id,[FromBody] UpdateRoleDto role)
         {
+            if(roleService.GetRoleById(id)==null) throw new KeyNotFoundException(MessageErrors.RoleNotFound);
             var result = await roleService.Update(id,role);
-            if (result) return Ok(role);
+            if (result) return Ok();
             return BadRequest();
         }
 

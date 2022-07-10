@@ -11,10 +11,7 @@ namespace TanPhucShopApi.Validatiors.Category
         public UpdateCategoryValidator()
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage("Category'name is required")
-                  .MaximumLength(30).WithMessage("Category'name length from 4 - 30 letters").MinimumLength(4).WithMessage("Category'name length from 4 - 30 letters");
-
-            RuleFor(x => x.Status).NotEmpty().WithMessage("Status is required");
-
+                  .MaximumLength(20).WithMessage("Category'name length from 2 - 20 letters").MinimumLength(2).WithMessage("Category'name length from 2 - 20 letters");
 
         }
 

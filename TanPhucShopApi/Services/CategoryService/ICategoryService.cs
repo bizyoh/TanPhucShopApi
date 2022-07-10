@@ -6,6 +6,7 @@ namespace TanPhucShopApi.Services.CategoryService
     public interface ICategoryService
     {
         public List<GetAllCategoryDto> GetAllCategory();
+        public DetailCategoryDto GetDetailCategoryDtoById(int id);
         public List<CategoryDto> GetAllCategoryDtoByStatus(bool status);
         public List<GetAllCategoryDto> GetAllCategoryByStatus(bool status);
         public CreatedCategoryDto Create(CreateCategoryDto createCategoryDto);

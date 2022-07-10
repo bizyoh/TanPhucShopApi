@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models.DTO.Category;
 using TanPhucShopApi.Services.CategoryService;
 
@@ -17,6 +18,7 @@ namespace TanPhucShopApi.Controllers
             categoryService = _categoryService;
             configuration = _configuration;
         }
+
         [HttpGet]
         public IActionResult GetAllCategory()
         {
@@ -24,7 +26,15 @@ namespace TanPhucShopApi.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("{status}")]
+        [HttpGet("{id}")]
+        public IActionResult GetDetailCategoryDtoById(int id)
+        {
+            var detailCategoryDto = categoryService.GetDetailCategoryDtoById(id);
+            if (detailCategoryDto == null) return NotFound();
+            return Ok(detailCategoryDto);
+        }
+
+        [HttpGet("status={status}")]
         public IActionResult GetAllCategoryByStatus(bool status)
         {
             var categories = categoryService.GetAllCategoryByStatus(status);
@@ -35,17 +45,19 @@ namespace TanPhucShopApi.Controllers
         [HttpPost]
         public IActionResult Create(CreateCategoryDto createCategoryDto)
         {
-            if (createCategoryDto != null)
+            if (createCategoryDto == null) throw new AppException(MessageErrors.CategoryInvalid);
+            else
             {
                 var createdCategory = categoryService.Create(createCategoryDto);
-                if (createdCategory != null) return Created(BASE_URL + "/category/"+createdCategory.Id, createdCategory);
+                if (createdCategory != null) return Created(BASE_URL + "/category/" + createdCategory.Id, createdCategory);
             }
             return BadRequest();
         }
 
-        [HttpPut("id")]
-        public IActionResult Update(int id, UpdateCategoryDto updateCategoryDto)
+        [HttpPut("{id}")]
+        public IActionResult Update(int id,[FromBody] UpdateCategoryDto updateCategoryDto)
         {
+            if (categoryService.GetById(id) == null) return NotFound();
             if (updateCategoryDto != null)
             {
                 var result = categoryService.Update(id, updateCategoryDto);

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TanPhucShopApi.Data;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.Category;
 
@@ -18,6 +19,7 @@ namespace TanPhucShopApi.Services.CategoryService
         public CreatedCategoryDto Create(CreateCategoryDto createCategoryDto)
         {
             var category = mapper.Map<Category>(createCategoryDto);
+            if (db.Categories.FirstOrDefault(x=>x.Name==category.Name)!=null) throw new AppException(MessageErrors.UniqueCategory);
             db.Categories.Add(category);
             if(db.SaveChanges() > 0)
             {
@@ -49,6 +51,8 @@ namespace TanPhucShopApi.Services.CategoryService
             return categories;
         }
 
+
+
         public List<GetAllCategoryDto> GetAllCategory()
         {
             var categories = db.Categories.Select(x => new GetAllCategoryDto
@@ -68,9 +72,11 @@ namespace TanPhucShopApi.Services.CategoryService
         public bool Update(int id, UpdateCategoryDto updateCategoryDto)
         {
             var category = db.Categories.Find(id);
-            if(category != null)
+            if (category == null) throw new KeyNotFoundException(MessageErrors.ItemNotFound);
+            else
             {
                 mapper.Map(updateCategoryDto,category);
+                if (!CheckCategoryByName(id,category.Name)) throw new AppException(MessageErrors.UniqueCategory);
                 db.Update(category);
                 return db.SaveChanges() > 0;
             }
@@ -85,6 +91,24 @@ namespace TanPhucShopApi.Services.CategoryService
                 Name=x.Name
             }).ToList();
             return categoryDtos;
+        }
+
+        public DetailCategoryDto GetDetailCategoryDtoById(int id)
+        {
+           var category = db.Categories.Find(id);
+           if (category == null) throw new KeyNotFoundException(MessageErrors.ItemNotFound);
+           var detailCategoryDto = mapper.Map<DetailCategoryDto>(category);
+           return detailCategoryDto;
+        }
+
+        public bool CheckCategoryByName(int id,string name)
+        {
+            var cates = db.Categories.Where(x => x.Id != id).ToList();
+            foreach(var cate in cates)
+            {
+                if (cate.Name == name) return false;
+            }
+            return true;
         }
     }
 }

@@ -10,6 +10,8 @@ namespace TanPhucShopApi.Mapper
         {
             CreateMap<CreateRoleDto, Role>();
             CreateMap<UpdateRoleDto, Role>();
+            CreateMap<DetailRoleDto, Role>();
+            CreateMap<Role,DetailRoleDto > ();
         }
     }
 }

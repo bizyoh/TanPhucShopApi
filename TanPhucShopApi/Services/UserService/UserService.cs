@@ -39,29 +39,22 @@ namespace TanPhucShopApi.Services.UserService
             configuration = _configuration;
         }
 
-        public async Task<bool> AddRoleUser(int id,IList<string> roles)
+        public async Task<AdminUpdateUserDto> AddRoleUser(int id,string role)
         {
-            var user = await FindUserById(id);
+            var user = await userManager.FindByIdAsync(id.ToString());
             if (user == null ) throw new AppException(MessageErrors.NotFound);
-            if (roles.Count() <= 0) throw new AppException(MessageErrors.NoRoleAdd);
+            if (string.IsNullOrEmpty(role)) throw new AppException(MessageErrors.NoRoleAdd);
             else
             {
-                List<string> roleAdds = new List<string>();
-                foreach (var role in roles)
+                var roleCurrent = await roleManager.FindByNameAsync(role);
+                if ((roleCurrent != null) && (await userManager.IsInRoleAsync(user, roleCurrent.Name) == false))
                 {
-                    var roleCurrent = await roleManager.FindByNameAsync(role);
-                    if ((roleCurrent != null) && (await userManager.IsInRoleAsync(user, roleCurrent.Name) == false))
-                    {
-                        roleAdds.Add(roleCurrent.Name);
-                    }
-                }
-                if (roleAdds.Count > 0)
-                {
-                    var result = await userManager.AddToRolesAsync(user, roles);
-                    if (result.Succeeded) return true;
+                    var result = await userManager.AddToRoleAsync(user, role);
+                    var adminUpdateDto = await FindAdminUpdateUserDtoById(id);
+                    return adminUpdateDto;
                 }
             }
-            return false;
+            return null;
         }
 
         public async Task<bool> ChangeStatusUser(int id)
@@ -130,6 +123,11 @@ namespace TanPhucShopApi.Services.UserService
                 expires: DateTime.Now.AddMinutes(expirityTime),
                 signingCredentials: signature);
             return new AccessToken { Token = new JwtSecurityTokenHandler().WriteToken(token), ExpirityTime = DateTime.Now.AddMinutes(expirityTime) };
+        }
+
+        public async Task Logout()
+        {
+            await signManager.SignOutAsync();
         }
 
         public async Task<bool> Delete(int id)
@@ -205,7 +203,8 @@ namespace TanPhucShopApi.Services.UserService
                 if (resultLogInWithUserName.Succeeded)
                 {
                     var accessedUserDto = mapper.Map<AccessedUserDto>(user);
-                    accessedUserDto.AccessToken = await CreateAccessToken(user);
+                    var token = await CreateAccessToken(user);
+                    accessedUserDto.AccessToken = token.Token;
                     user.RefreshToken = GenerateRefreshToken().Token;
                     await userManager.UpdateAsync(user);
                     return accessedUserDto;
@@ -220,7 +219,8 @@ namespace TanPhucShopApi.Services.UserService
                     if (resultLogInWithEmail.Succeeded)
                     {
                         var accessedUserDto = mapper.Map<AccessedUserDto>(user);
-                        accessedUserDto.AccessToken = await CreateAccessToken(user);
+                        var token = await CreateAccessToken(user);
+                        accessedUserDto.AccessToken = token.Token;
                         user.RefreshToken = GenerateRefreshToken().Token;
                         await userManager.UpdateAsync(user);
                         return accessedUserDto;
@@ -230,21 +230,23 @@ namespace TanPhucShopApi.Services.UserService
             return null;
         }
 
-        public async Task<bool> RemoveRoleUser(UserRoleDto removeUserRoleDTO)
+        public async Task<bool> RemoveRoleUser(int id, string role)
         {
-            var user = await FindUserById(removeUserRoleDTO.Id);
-            List<int> roleIds = removeUserRoleDTO.RoleIds;
-            if (user == null) return false;
+            var user = await userManager.FindByIdAsync(id.ToString());
+            if(user==null) throw new KeyNotFoundException(MessageErrors.NotFound);
+            if (string.IsNullOrEmpty(role)) throw new AppException(MessageErrors.NoRoleRemove);
             else
             {
-                List<string> roles = new List<string>();
-                foreach (var roleId in roleIds)
+                
+                    var result = await roleManager.RoleExistsAsync(role);
+                if (result)
                 {
-                    var role = await roleManager.FindByIdAsync(roleId.ToString());
-                    if (await userManager.IsInRoleAsync(user, role.Name)) roles.Add(role.Name);
+                    if (await userManager.IsInRoleAsync(user, role))
+                    {
+                        IdentityResult result2 =await userManager.RemoveFromRoleAsync(user, role);
+                        if (result2.Succeeded) return true;
+                    }
                 }
-                var result = await userManager.RemoveFromRolesAsync(user, roles);
-                if (result.Succeeded) return true;
             }
             return false;
         }
@@ -270,25 +272,14 @@ namespace TanPhucShopApi.Services.UserService
             return false;
         }
 
-        public async Task<bool> UpdateByAdmin(int id, AdminUpdateUserDto adminUpdateUserDto)
+        public async Task<bool> UpdateByAdmin(int id, PostAdminUpdateUserDto postAdminUpdateUserDto)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user is null) throw new AppException(MessageErrors.NotFound);
-            else
-            {
-                user = mapper.Map<User>(adminUpdateUserDto);
-                var a = db.Database.CreateExecutionStrategy();
-                await a.ExecuteAsync(async () =>
-                {
-                    using var transaction = await db.Database.BeginTransactionAsync();
-                    var result1 = await AddRoleUser(user.Id, adminUpdateUserDto.Roles);
-                    var result2 = await userManager.UpdateAsync(user);
-                if (!result1) throw new AppException(MessageErrors.CannotAddRole);
-                    if (!result2.Succeeded) throw new AppException(MessageErrors.UpdateUserFail); 
-                if(result1 && result2.Succeeded) await transaction.CommitAsync();
-                else transaction.Rollback();
-                });
-            }
+            user = mapper.Map<User>(postAdminUpdateUserDto);
+            var result = await userManager.UpdateAsync(user);
+            if (result.Succeeded) return true;
+            else throw new AppException(MessageErrors.UpdateUserFail);
             return false;
         }
 

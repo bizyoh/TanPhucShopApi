@@ -8,6 +8,7 @@ using TanPhucShopApi.Services.UserService;
 
 namespace TanPhucShopApi.Controllers
 {
+  
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -23,7 +24,7 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]
         public IActionResult GetAllUserDto()
         {
             var users = userService.GetAll();
@@ -54,14 +55,14 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-        [HttpPut("{id}/admin")]
-        public async Task<IActionResult> UpdateByAdmin(int id, AdminUpdateUserDto adminUpdateUserDto)
+        [HttpPut("admin/{id}")]
+        public async Task<IActionResult> UpdateByAdmin(int id,[FromBody] PostAdminUpdateUserDto postAdminUpdateUserDto)
         {
             var user = await userService.FindUserById(id);
             if (user == null) return NotFound(MessageErrors.NotFound);
             else
             {
-                var Result = await userService.UpdateByAdmin(id, adminUpdateUserDto);
+                var Result = await userService.UpdateByAdmin(id, postAdminUpdateUserDto);
                 if (Result == true)
                 {
                     return Ok();
@@ -113,7 +114,7 @@ namespace TanPhucShopApi.Controllers
             return Ok(userDTO);
         }
 
-        [HttpGet("{id}/detail")]
+        [HttpGet("admin/{id}/detail")]
         public async Task<IActionResult> FindDetailUserDtoById(int id)
         {
             var userDTO = await userService.FindDetailUserDtoById(id);
@@ -121,29 +122,45 @@ namespace TanPhucShopApi.Controllers
             return Ok(userDTO);
         }
 
-
-        [HttpGet("RemoveRole")]
-        public async Task<IActionResult> RemoveRolesUser(UserRoleDto removeUserRoleDTO)
+        [HttpGet("admin/{id}")]
+        public async Task<IActionResult> FindAdminUpdateUserDtoById(int id)
         {
-            var result = await userService.RemoveRoleUser(removeUserRoleDTO);
+            var userDTO = await userService.FindAdminUpdateUserDtoById(id);
+            if (userDTO == null) return NotFound(MessageErrors.NotFound);
+            return Ok(userDTO);
+        }
+
+        [HttpPost("RemoveRole/{id}")]
+        public async Task<IActionResult> RemoveRolesUser(int id,[FromBody] string role)
+        {
+            var result = await userService.RemoveRoleUser(id,role);
             if (result) return Ok();
             return BadRequest();
         }
 
         [HttpPost("AddRole/{id}")]
-        public async Task<IActionResult> AddRolesUser(int id,[FromBody] IList<string> roles)
+        public async Task<IActionResult> AddRolesUser(int id,[FromBody] string role)
         {
-            var result = await userService.AddRoleUser(id,roles);
-            if (result) return Ok();
+            var user = await userService.AddRoleUser(id,role);
+            if (user!=null) return Ok(user);
             return BadRequest();
         }
 
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginUserDto lgoinUserDto)
         {
             var user = await userService.Login(lgoinUserDto);
             if (user!=null) return Ok(user);
             return BadRequest();
+        }
+
+        [HttpGet("Logout")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Logout()
+        {
+            await userService.Logout();
+            return Ok();
         }
     }
 }

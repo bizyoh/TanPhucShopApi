@@ -11,6 +11,7 @@ namespace TanPhucShopApi.Mapper
             CreateMap<CreateCategoryDto,Category>();
             CreateMap<UpdateCategoryDto, Category>();
             CreateMap<Category, CreatedCategoryDto>();
+            CreateMap<Category, DetailCategoryDto>();
         }
     }
 }

@@ -11,13 +11,15 @@ namespace TanPhucShopApi.Services.UserService
         public Task<bool> Delete(int id);
         public Task<bool> ChangeStatusUser(int id);
         public Task<bool> UpdateByUser(int id, UpdateUserDto userUpdateDto);
-        public Task<bool> UpdateByAdmin(int id, AdminUpdateUserDto adminUpdateUserDto);
+        public Task<bool> UpdateByAdmin(int id, PostAdminUpdateUserDto postAdminUpdateUserDto);
         public Task<User> FindUserById(int id);
         public List<GetAllUserDto>GetAll();
-        public Task<bool> AddRoleUser(int id,IList<string> roles);
-        public Task<bool> RemoveRoleUser(UserRoleDto userRoleDTO);
+        public Task<AdminUpdateUserDto> AddRoleUser(int id,string role);
+        public Task<bool> RemoveRoleUser(int id,string role);
         public Task<DetailUserDto> FindDetailUserDtoById(int id);
+        public Task<AdminUpdateUserDto> FindAdminUpdateUserDtoById(int id);
         public Task<AccessToken> CreateAccessToken(User user);
         public Task<AccessedUserDto> Login(LoginUserDto loginUserDto);
+        public Task Logout();
     }
 }

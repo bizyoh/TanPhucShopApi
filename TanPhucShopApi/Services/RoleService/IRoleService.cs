@@ -6,7 +6,7 @@ namespace TanPhucShopApi.Services.RoleService
     public interface IRoleService
     {
         public List<GetAllRoleDto> GetAllRoles();
-        public Task<Role> GetRoleById(int id);
+        public Task<DetailRoleDto> GetRoleById(int id);
         public Task<Role> GetRoleByName(string roleName);
         public Task<bool> Delete(int id);
         public Task<bool> Delete(string name);

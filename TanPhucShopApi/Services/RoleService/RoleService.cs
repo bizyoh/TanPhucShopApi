@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.RoleDto;
 
@@ -18,7 +19,7 @@ namespace TanPhucShopApi.Services.RoleService
         public async Task<bool> Create(CreateRoleDto roleDto)
         {
             var role = mapper.Map<Role>(roleDto);
-            if(await roleManager.RoleExistsAsync(role.Name)) return false;
+            if(await roleManager.RoleExistsAsync(role.Name)) throw new AppException(MessageErrors.UniqueRole);
             var result = await roleManager.CreateAsync(role);
             if (result.Succeeded) return true;
             return false;
@@ -26,18 +27,18 @@ namespace TanPhucShopApi.Services.RoleService
 
         public async Task<bool> Delete(int id)
         {
-            var role = await GetRoleById(id);
+            var role = await roleManager.FindByIdAsync(id.ToString());
             if (role != null)
             {
                 var result = await roleManager.DeleteAsync(role);
                 if (result.Succeeded) return true;
             }
             return false;
-        }
+        } 
 
         public async Task<bool> Delete(string name)
         {
-            var role = await GetRoleByName(name);
+            var role = await roleManager.FindByNameAsync(name);
             if (role != null)
             {
                 var result = await roleManager.DeleteAsync(role);
@@ -56,10 +57,15 @@ namespace TanPhucShopApi.Services.RoleService
             }).ToList();
         }
 
-        public async Task<Role> GetRoleById(int id)
+        public async Task<DetailRoleDto> GetRoleById(int id)
         {
             var role = await roleManager.FindByIdAsync(id.ToString());
-            if (role != null) return role;
+            if (role == null) throw new KeyNotFoundException(MessageErrors.RoleNotFound);
+            else
+            {
+                var detailRoleDto = mapper.Map<DetailRoleDto>(role);
+                return detailRoleDto;
+            } 
             return null;
         }
 
@@ -72,14 +78,19 @@ namespace TanPhucShopApi.Services.RoleService
 
         public async Task<bool> Update(int id, UpdateRoleDto updateRoleDto)
         {
-            var currentRole = await GetRoleById(id);
-            if(currentRole is not null)
+            
+            var currentRole = await roleManager.FindByIdAsync(id.ToString());
+            if(currentRole is null) throw new KeyNotFoundException(MessageErrors.RoleNotFound);
+            else 
             {
                 mapper.Map(updateRoleDto,currentRole);
+                if(await roleManager.RoleExistsAsync(currentRole.Name)) throw new AppException(MessageErrors.RoleNameExist);
                 IdentityResult result =await roleManager.UpdateAsync(currentRole);
                 if (result.Succeeded) return true;
             }
             return false;
         }
+
+     
     }
 }
