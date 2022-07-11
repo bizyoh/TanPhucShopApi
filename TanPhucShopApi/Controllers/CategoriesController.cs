@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models.DTO.Category;
@@ -6,6 +7,7 @@ using TanPhucShopApi.Services.CategoryService;
 
 namespace TanPhucShopApi.Controllers
 {
+    [Authorize(Roles="Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -34,8 +36,8 @@ namespace TanPhucShopApi.Controllers
             return Ok(detailCategoryDto);
         }
 
-        [HttpGet("status={status}")]
-        public IActionResult GetAllCategoryByStatus(bool status)
+        [HttpGet("status")]
+        public IActionResult GetAllCategoryByStatus([FromQuery]bool status)
         {
             var categories = categoryService.GetAllCategoryByStatus(status);
             return Ok(categories);

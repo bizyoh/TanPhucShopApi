@@ -10,6 +10,7 @@ using TanPhucShopApi.Services.UserService;
 
 namespace TanPhucShopApi.Controllers
 {
+    [Authorize(Roles ="Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class RolesController : ControllerBase

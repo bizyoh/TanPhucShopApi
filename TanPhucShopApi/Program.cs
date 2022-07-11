@@ -14,6 +14,7 @@ using TanPhucShopApi.Services.UserService;
 using FluentValidation.AspNetCore;
 using TanPhucShopApi.Validatiors.User;
 using TanPhucShopApi.Middleware;
+using TanPhucShopApi.Services.InvoiceService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,7 @@ builder.Services.AddScoped<SignInManager<User>>();
 builder.Services.AddScoped<UserManager<User>>();
 builder.Services.AddScoped<RoleManager<Role>>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IInvoiceService, InvoiceService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();

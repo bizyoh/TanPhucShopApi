@@ -8,8 +8,9 @@ using TanPhucShopApi.Services.UserService;
 
 namespace TanPhucShopApi.Controllers
 {
-  
+
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -31,7 +32,9 @@ namespace TanPhucShopApi.Controllers
             return Ok(users);
         }
 
+
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Create(RegisterUserDto registerUserDto)
         {
             var createdUser = await userService.Create(registerUserDto);
@@ -40,6 +43,7 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles ="User")]
         public async Task<IActionResult> UpdateByuser(int id, UpdateUserDto updateUserDto)
         {
             var user = await userService.FindUserById(id);
@@ -70,7 +74,6 @@ namespace TanPhucShopApi.Controllers
             }
             return BadRequest();
         }
-
 
         [HttpGet("status/{id}")]
         public async Task<IActionResult> ChangeStatusUser(int id)

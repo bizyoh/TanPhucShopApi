@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TanPhucShopApi.Data;
+using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.Category;
 using TanPhucShopApi.Models.DTO.Product;
@@ -173,5 +174,15 @@ namespace TanPhucShopApi.Services.ProductService
             var getAllProductsDto = mapper.Map<List<Product>, List<GetAllProductDto>>(products);
             return getAllProductsDto;
         }
+
+        public async Task<ProductCartDto> GetProductCartDtoById(int id)
+        {
+            var product =await db.Products.FindAsync(id);
+            if (product == null) throw new KeyNotFoundException(MessageErrors.ItemNotFound);
+            var productCartDto = mapper.Map<ProductCartDto>(product);
+            return productCartDto;
+        }
+
+      
     }
 }

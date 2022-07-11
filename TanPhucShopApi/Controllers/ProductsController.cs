@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.Product;
@@ -6,6 +7,7 @@ using TanPhucShopApi.Services.ProductService;
 
 namespace TanPhucShopApi.Controllers
 {
+    [Authorize(Roles="Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -20,13 +22,16 @@ namespace TanPhucShopApi.Controllers
             BASE_URL = config["BASE_URL"];
         }
 
+
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetAllProduct()
         {
             var products = productService.GetAllProducts();
             return Ok(products);
         }
 
+        [AllowAnonymous]
         [HttpGet("3/products")]
         public IActionResult GetAllProductTop3ByDate()
         {
@@ -34,6 +39,7 @@ namespace TanPhucShopApi.Controllers
             return Ok(products);
         }
 
+        [AllowAnonymous]
         [HttpGet("status={statusUri}")]
         public IActionResult GetAllProductsDtoByStatus(string statusUri)
         {
@@ -90,6 +96,7 @@ namespace TanPhucShopApi.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public IActionResult GetDetailProductById(int id)
         {
@@ -101,6 +108,21 @@ namespace TanPhucShopApi.Controllers
             }
             return BadRequest();
         }
+
+        [AllowAnonymous]
+        [HttpGet("cart/{id}")]
+        public IActionResult GetProductCartDtoById(int id)
+        {
+            var product = productService.GetDetailProductDtoById(id);
+            if (product == null) return NotFound();
+            else
+            {
+                return Ok(product);
+            }
+            return BadRequest();
+        }
+
+      
     }
 
 }

@@ -15,6 +15,7 @@ namespace TanPhucShopApi.Mapper
             CreateMap<Product, UpdateProductDto>();
             CreateMap<Product, DetailProductDto>().ForMember(x => x.Photo, opt => opt.MapFrom(src => BASE_URL + src.Photo));
             CreateMap<Product, GetAllProductDto>().ForMember(x => x.Photo, opt => opt.MapFrom(src => BASE_URL + src.Photo));
+            CreateMap<Product, ProductCartDto>().ForMember(x => x.Photo, opt => opt.MapFrom(src => BASE_URL + src.Photo));
         }
     }
 }

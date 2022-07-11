@@ -14,5 +14,11 @@ namespace TanPhucShopApi.Services.InvoiceService
             db = _db;
             mapper = _mapper;
         }
+
+        public async Task<bool> Create(Invoice invoice)
+        {
+            db.Invoices.Add(invoice);
+           return db.SaveChanges()>0;
+        }
     }    
 }
