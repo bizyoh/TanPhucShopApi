@@ -56,14 +56,9 @@ namespace TanPhucShopApi.Services.ProductService
             {
                 Id = x.Id,
                 Name = x.Name,
-                Status = x.Status,
                 CategoryId = x.CategoryId,
-                CategoryName = x.Category.Name,
-                Description = x.Description,
-                Created = x.Created,
                 Price = x.Price,
                 Photo = configuration["IMG_URL"] + "products/" + x.Photo,
-                Quantity = x.Quantity
             }).ToList();
         }
 

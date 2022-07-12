@@ -7,7 +7,7 @@ using TanPhucShopApi.Services.ProductService;
 
 namespace TanPhucShopApi.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
