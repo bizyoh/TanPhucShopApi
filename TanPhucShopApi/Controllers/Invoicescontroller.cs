@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TanPhucShopApi.Models;
+using TanPhucShopApi.Models.DTO.InvoiceDto;
 using TanPhucShopApi.Services.InvoiceService;
 
 namespace TanPhucShopApi.Controllers
@@ -13,10 +14,11 @@ namespace TanPhucShopApi.Controllers
         {
             invoiceService = _invoiceService;
         }
+
         [HttpPost]
-        public async Task<IActionResult> Create(Invoice invoice)
+        public IActionResult Create([FromBody]CreateInvoiceDto invoice)
         {
-            if (await invoiceService.Create(invoice))
+            if (invoiceService.Create(invoice))
             {
                 return Ok();
             }

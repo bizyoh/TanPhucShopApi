@@ -7,7 +7,7 @@ using TanPhucShopApi.Services.ProductService;
 
 namespace TanPhucShopApi.Controllers
 {
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -31,6 +31,14 @@ namespace TanPhucShopApi.Controllers
             return Ok(products);
         }
 
+        [HttpGet("categories/{id}")]
+        [AllowAnonymous]
+        public IActionResult GetAllProductsDtoByCategoryId(int id)
+        {
+            var products = productService.GetAllProductsDtoByCategoryId(id);
+            return Ok(products);
+        }
+
         [AllowAnonymous]
         [HttpGet("3/products")]
         public IActionResult GetAllProductTop3ByDate()
@@ -40,11 +48,11 @@ namespace TanPhucShopApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("status={statusUri}")]
-        public IActionResult GetAllProductsDtoByStatus(string statusUri)
+        [HttpGet("status")]
+        public IActionResult GetAllProductsDtoByStatus([FromQuery]string status)
         {
-            var status = bool.Parse(statusUri);
-            var products = productService.GetAllProductsDtoByStatus(status);
+             var statusParse = bool.Parse(status);
+            var products = productService.GetAllProductsDtoByStatus(statusParse);
             return Ok(products);
         }
 

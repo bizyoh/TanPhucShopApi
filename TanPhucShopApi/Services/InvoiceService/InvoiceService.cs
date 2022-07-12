@@ -2,6 +2,7 @@
 using TanPhucShopApi.Data;
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.Category;
+using TanPhucShopApi.Models.DTO.InvoiceDto;
 
 namespace TanPhucShopApi.Services.InvoiceService
 {
@@ -15,10 +16,21 @@ namespace TanPhucShopApi.Services.InvoiceService
             mapper = _mapper;
         }
 
-        public async Task<bool> Create(Invoice invoice)
+        public bool Create(CreateInvoiceDto createInvoiceDto)
         {
-            db.Invoices.Add(invoice);
-           return db.SaveChanges()>0;
+            var invoice = mapper.Map<Invoice>(createInvoiceDto);
+            var invoiceDetails = mapper.Map<List<InvoiceDetail>>(createInvoiceDto.CreateInvoiceDetailDtos);
+            invoice.InvoiceDetails = invoiceDetails;
+            if (invoice.InvoiceDetails.Count > 0)
+            {
+                db.Invoices.Add(invoice);
+            }
+            return db.SaveChanges()>0;
+        }
+
+        public List<Invoice> FindInvoiceByUserId(int id)
+        {
+            return db.Invoices.Where(invoice => invoice.UserId == id).ToList();
         }
     }    
 }

@@ -1,4 +1,5 @@
-﻿using TanPhucShopApi.Models.DTO.RoleDto;
+﻿using TanPhucShopApi.Models.DTO.InvoiceDto;
+using TanPhucShopApi.Models.DTO.RoleDto;
 
 namespace TanPhucShopApi.Models.DTO.UserDto
 {
@@ -13,6 +14,6 @@ namespace TanPhucShopApi.Models.DTO.UserDto
         public string PhoneNumber { get; set; }
         public bool Status { get; set; }
         public IList<string> Roles { get; set; }
-        public List<Invoice> Invoices { get; set; }
+        public List<GetAllInvoiceDto> Invoices { get; set; }
     }
 }

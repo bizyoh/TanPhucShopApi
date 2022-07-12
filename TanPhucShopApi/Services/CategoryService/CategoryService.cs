@@ -19,7 +19,10 @@ namespace TanPhucShopApi.Services.CategoryService
         public CreatedCategoryDto Create(CreateCategoryDto createCategoryDto)
         {
             var category = mapper.Map<Category>(createCategoryDto);
-            if (db.Categories.FirstOrDefault(x=>x.Name==category.Name)!=null) throw new AppException(MessageErrors.UniqueCategory);
+            if (db.Categories.FirstOrDefault(x => x.Name == category.Name) != null)
+            {
+                throw new AppException(MessageErrors.UniqueCategory);
+            }
             db.Categories.Add(category);
             if(db.SaveChanges() > 0)
             {

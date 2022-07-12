@@ -10,7 +10,7 @@ namespace TanPhucShopApi.Controllers
 {
 
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+   // [Authorize(Roles = "Admin")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -25,10 +25,11 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles ="Admin")]
+        [AllowAnonymous]
         public IActionResult GetAllUserDto()
         {
             var users = userService.GetAll();
+            
             return Ok(users);
         }
 
@@ -75,7 +76,7 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-        [HttpGet("status/{id}")]
+        [HttpGet("{id}/status")]
         public async Task<IActionResult> ChangeStatusUser(int id)
         {
             var user = await userService.FindUserById(id);

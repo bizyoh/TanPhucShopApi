@@ -174,6 +174,12 @@ namespace TanPhucShopApi.Services.ProductService
             var getAllProductsDto = mapper.Map<List<Product>, List<GetAllProductDto>>(products);
             return getAllProductsDto;
         }
+        public List<GetAllProductDto> GetAllProductsDtoByCategoryId(int categoryId)
+        {
+            var products = db.Products.Where(x => (x.Status == true) && (x.CategoryId==categoryId)).ToList();
+            var getAllProductsDto = mapper.Map<List<Product>, List<GetAllProductDto>>(products);
+            return getAllProductsDto;
+        }
 
         public async Task<ProductCartDto> GetProductCartDtoById(int id)
         {

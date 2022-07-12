@@ -7,7 +7,7 @@ using TanPhucShopApi.Services.CategoryService;
 
 namespace TanPhucShopApi.Controllers
 {
-    [Authorize(Roles="Admin")]
+ //   [Authorize(Roles="Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -37,6 +37,7 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpGet("status")]
+        [AllowAnonymous]
         public IActionResult GetAllCategoryByStatus([FromQuery]bool status)
         {
             var categories = categoryService.GetAllCategoryByStatus(status);

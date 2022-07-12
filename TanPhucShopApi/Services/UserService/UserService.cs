@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -13,8 +14,10 @@ using TanPhucShopApi.Data;
 using TanPhucShopApi.DTO;
 using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models;
+using TanPhucShopApi.Models.DTO.InvoiceDto;
 using TanPhucShopApi.Models.DTO.RoleDto;
 using TanPhucShopApi.Models.DTO.UserDto;
+using TanPhucShopApi.Services.InvoiceService;
 using TanPhucShopApi.Services.RoleService;
 
 namespace TanPhucShopApi.Services.UserService
@@ -26,12 +29,14 @@ namespace TanPhucShopApi.Services.UserService
         private RoleManager<Role> roleManager;
         private IRoleService roleService;
         private IMapper mapper;
+        private IInvoiceService invoiceService;
         private IConfiguration configuration;
         private AppDBContext db;
-        public UserService(IRoleService _roleService,UserManager<User> _userManager, SignInManager<User> _signInManager, RoleManager<Role> _roleManager, IMapper _mapper, IConfiguration _configuration, AppDBContext _db)
+        public UserService(IInvoiceService _invoiceService,IRoleService _roleService,UserManager<User> _userManager, SignInManager<User> _signInManager, RoleManager<Role> _roleManager, IMapper _mapper, IConfiguration _configuration, AppDBContext _db)
         {
+            invoiceService=_invoiceService;
             userManager = _userManager;
-             roleService= _roleService;
+            roleService= _roleService;
             signManager = _signInManager;
             roleManager = _roleManager;
             mapper = _mapper;
@@ -60,11 +65,19 @@ namespace TanPhucShopApi.Services.UserService
         public async Task<bool> ChangeStatusUser(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
-            if (user != null)
+            if (await userManager.IsInRoleAsync(user,"Admin"))
             {
-                user.Status = !user.Status;
-                IdentityResult res = await userManager.UpdateAsync(user);
-                if (res.Succeeded) return true;
+                return false;
+            }
+            if (user == null)
+            {
+                throw new KeyNotFoundException(MessageErrors.NotFound);
+            }
+            user.Status = !user.Status;
+            IdentityResult res = await userManager.UpdateAsync(user);
+            if (res.Succeeded)
+            {
+                return true;
             }
             return false;
         }
@@ -149,11 +162,16 @@ namespace TanPhucShopApi.Services.UserService
             {
                 var roles = await userManager.GetRolesAsync(user);
                 var detailUserDto = mapper.Map<DetailUserDto>(user);
+                var invoices = mapper.Map<List<GetAllInvoiceDto>>(invoiceService.FindInvoiceByUserId(id));
                 detailUserDto.Roles = roles;
+                detailUserDto.Invoices = invoices;
                 return detailUserDto;
             }
             throw new KeyNotFoundException(MessageErrors.NotFound);
+
         }
+
+     
 
         public async Task<AdminUpdateUserDto> FindAdminUpdateUserDtoById(int id)
         {
@@ -179,7 +197,7 @@ namespace TanPhucShopApi.Services.UserService
 
         public List<GetAllUserDto> GetAll()
         {
-            var getAllUserManagers = userManager.Users.Select(p => new GetAllUserDto
+            var GetAllUserDtos = userManager.Users.Include(x=>x.Invoices).Select(p => new GetAllUserDto
             {
                 Id = p.Id,
                 UserName = p.UserName,
@@ -188,10 +206,10 @@ namespace TanPhucShopApi.Services.UserService
                 PhoneNumber = p.PhoneNumber,
                 Address = p.Address,
                 Email = p.Email,
-                Roles = p.Roles,
-                Invoices = p.Invoices
             }).ToList();
-            return getAllUserManagers;
+      
+            
+            return GetAllUserDtos;
         }
 
         public async Task<AccessedUserDto> Login(LoginUserDto loginUserDto)
