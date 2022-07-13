@@ -20,6 +20,7 @@ namespace TanPhucShopApi.Services.UserService
         public Task<AdminUpdateUserDto> FindAdminUpdateUserDtoById(int id);
         public Task<AccessToken> CreateAccessToken(User user);
         public Task<AccessedUserDto> Login(LoginUserDto loginUserDto);
-        public Task Logout();
+        public GetUserRoleDto FindUserRoleDtoById(int id);
+
     }
 }

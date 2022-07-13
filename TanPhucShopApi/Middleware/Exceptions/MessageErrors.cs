@@ -15,6 +15,6 @@
         public static string UniqueRole = "This role has already been exists!";
         public static string CategoryInvalid = "Category is invalid - Create fail!";
         public static string UniqueCategory = "Category Name has already been exists!";
-
+        public static string ProductOutOfStock = "Product Out of stock !";
     }
 }

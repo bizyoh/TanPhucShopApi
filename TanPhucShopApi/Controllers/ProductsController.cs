@@ -23,6 +23,15 @@ namespace TanPhucShopApi.Controllers
         }
 
 
+        [HttpGet("admin")]
+        [AllowAnonymous]
+        public IActionResult GetAllProductAdminViewModel()
+        {
+            var products = productService.GetAllProductAdminViewModel();
+            return Ok(products);
+        }
+
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult GetAllProduct()
@@ -129,8 +138,6 @@ namespace TanPhucShopApi.Controllers
             }
             return BadRequest();
         }
-
-      
     }
 
 }

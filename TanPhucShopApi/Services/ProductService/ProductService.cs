@@ -62,6 +62,23 @@ namespace TanPhucShopApi.Services.ProductService
             }).ToList();
         }
 
+        public List<ProductAdminViewModel> GetAllProductAdminViewModel()
+        {
+             var products = db.Products.Select(x => new ProductAdminViewModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CategoryId = x.CategoryId,
+                Price = x.Price,
+                Photo = configuration["IMG_URL"] + "products/" + x.Photo,
+                Created = x.Created,
+                Quantity = x.Quantity,
+                Status = x.Status
+            }).ToList();
+            return products; 
+        }
+
+
         public List<Product> GetAllProductsByStatus(bool status)
         {
             return db.Products.Where(x => x.Status == status).ToList();

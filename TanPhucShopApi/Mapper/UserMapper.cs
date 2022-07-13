@@ -14,10 +14,11 @@ namespace TanPhucShopApi.Mapper
             CreateMap<User, AccessedUserDto>();
             CreateMap<User, AdminUpdateUserDto>();
             CreateMap<AdminUpdateUserDto, User>();
-           
+            CreateMap<User, GetUserRoleDto>();
+
             // CreateMap<PostAdminUpdateUserDto, User>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<PostAdminUpdateUserDto, User>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<PostAdminUpdateUserDto, User>();
+             
         }
     }
 }

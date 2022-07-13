@@ -170,9 +170,6 @@ namespace TanPhucShopApi.Services.UserService
             throw new KeyNotFoundException(MessageErrors.NotFound);
 
         }
-
-     
-
         public async Task<AdminUpdateUserDto> FindAdminUpdateUserDtoById(int id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
@@ -294,7 +291,7 @@ namespace TanPhucShopApi.Services.UserService
         {
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user is null) throw new AppException(MessageErrors.NotFound);
-            user = mapper.Map<User>(postAdminUpdateUserDto);
+            mapper.Map(postAdminUpdateUserDto,user);
             var result = await userManager.UpdateAsync(user);
             if (result.Succeeded) return true;
             else throw new AppException(MessageErrors.UpdateUserFail);
@@ -317,6 +314,16 @@ namespace TanPhucShopApi.Services.UserService
             var tokenDecode = handler.ReadJwtToken(token);
             var claims = tokenDecode.Claims.Where(x => x.Type == "Role").ToList();
             return claims;
+        }
+
+        public GetUserRoleDto FindUserRoleDtoById(int id)
+        {
+
+            var user = db.Users.FirstOrDefault(x => x.Id == id);
+            GetUserRoleDto userDto = mapper.Map<GetUserRoleDto>(user);
+            List<DetailRoleDto> roleDtos = mapper.Map<List<DetailRoleDto>>(user.Roles);
+            userDto.DetailRoleDtos = roleDtos;
+            return userDto;
         }
     }
 }

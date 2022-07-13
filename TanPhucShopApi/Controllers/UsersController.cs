@@ -93,6 +93,22 @@ namespace TanPhucShopApi.Controllers
         }
 
 
+        [HttpGet("admin/{id}/role")]
+        public async Task<IActionResult> FindUserByRole(int id)
+        {
+            var user = await userService.FindUserById(id);
+            if (user == null) return NotFound();
+            else
+            {
+                var userDto = userService.FindUserRoleDtoById(id);
+                if (userDto != null)
+                {
+                    return Ok(userDto);
+                }
+            }
+            return BadRequest();
+        }
+
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
@@ -159,12 +175,6 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-        [HttpGet("Logout")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Logout()
-        {
-            await userService.Logout();
-            return Ok();
-        }
+       
     }
 }
