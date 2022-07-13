@@ -100,7 +100,7 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-        [HttpPost("uploadphoto/{id}")]
+        [HttpPost("{id}/uploadphoto")]
         public IActionResult UploadPhoto(int id,  IFormFile file)
         {
             try
