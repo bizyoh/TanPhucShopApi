@@ -124,15 +124,17 @@ namespace TanPhucShopApi.Services.ProductService
                 file.CopyTo(fileStream);
             }
             var product = db.Products.Find(id);
-            if (product != null)
+            if (product == null)
+            {
+                throw new KeyNotFoundException(MessageErrors.ItemNotFound);
+            }
+            else
             {
                 string oldFileName = product.Photo;
                 product.Photo = fileName;
                 db.SaveChanges();
                 DeleteFile(oldFileName);
-            
             }
-
             var baseURL = httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host + httpContextAccessor.HttpContext.Request.PathBase;
             return (new
             {

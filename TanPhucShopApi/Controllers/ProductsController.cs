@@ -7,7 +7,7 @@ using TanPhucShopApi.Services.ProductService;
 
 namespace TanPhucShopApi.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -66,7 +66,7 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(CreateProductDto createProductDto)
+        public IActionResult Create([FromForm]CreateProductDto createProductDto)
         {
             if (createProductDto != null)
             {
@@ -76,7 +76,7 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public IActionResult Update(int id,UpdateProductDto updateProductDto)
         {
             if (updateProductDto != null)
@@ -101,16 +101,13 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpPost("{id}/uploadphoto")]
-        public IActionResult UploadPhoto(int id,  IFormFile file)
+        public IActionResult UploadPhoto( int id,  IFormFile file)
         {
-            try
-            {
-                return Ok(productService.UploadPhoto(id, file));
-            }
-            catch
-            {
-                return BadRequest();
-            }
+            productService.UploadPhoto(id, file);
+            return Ok();
+       
+            return BadRequest();
+           
         }
 
         [AllowAnonymous]

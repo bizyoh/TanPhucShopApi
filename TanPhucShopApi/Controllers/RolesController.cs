@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TanPhucShopApi.DTO;
 using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models.DTO.RoleDto;
 using TanPhucShopApi.Models.DTO.UserDto;

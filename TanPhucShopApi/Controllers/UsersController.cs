@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TanPhucShopApi.DTO;
 using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models.DTO.UserDto;
 using TanPhucShopApi.Services.UserService;
@@ -10,7 +9,7 @@ namespace TanPhucShopApi.Controllers
 {
 
     [Route("api/[controller]")]
-   // [Authorize(Roles = "Admin")]
+   [Authorize(Roles = "Admin")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -25,7 +24,6 @@ namespace TanPhucShopApi.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult GetAllUserDto()
         {
             var users = userService.GetAll();

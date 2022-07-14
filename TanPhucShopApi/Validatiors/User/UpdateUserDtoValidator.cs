@@ -2,7 +2,7 @@
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.UserDto;
 
-namespace WebAPI.Validatitors
+namespace TanPhucShopApi.Validatiors.User
 
 {
     public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
@@ -42,5 +42,5 @@ namespace WebAPI.Validatitors
         }
 
     }
-   
+
 }

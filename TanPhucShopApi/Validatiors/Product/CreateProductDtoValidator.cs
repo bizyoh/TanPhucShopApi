@@ -17,7 +17,7 @@ namespace TanPhucShopApi.Validatiors.Product
 
             RuleFor(x => x.Status).NotEmpty().WithMessage("Status is required");
 
-            RuleFor(x => x.Photo).NotEmpty().WithMessage("Photo is required");
+            RuleFor(x => x.File).NotEmpty().WithMessage("Photo is required");
 
             RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Please Select Category!");
 

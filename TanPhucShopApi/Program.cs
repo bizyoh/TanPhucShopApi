@@ -1,9 +1,8 @@
-﻿    using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using TanPhucShopApi.Converter;
 using TanPhucShopApi.Data;
 using TanPhucShopApi.Mapper;
 using TanPhucShopApi.Models;
@@ -15,7 +14,7 @@ using FluentValidation.AspNetCore;
 using TanPhucShopApi.Validatiors.User;
 using TanPhucShopApi.Middleware;
 using TanPhucShopApi.Services.InvoiceService;
-
+using IntegrationTest;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,17 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddFluentValidation(opts => opts.RegisterValidatorsFromAssembly(typeof(RegisterUserDtoValidator).Assembly))
     .AddNewtonsoftJson(options =>options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-  
-//.AddJsonOptions(option =>
-//{
-//    option.JsonSerializerOptions.Converters.Add(new Dateconverter());
-//});
-
 builder.Services.AddDbContext<AppDBContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseLazyLoadingProxies());
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-//builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<AppDBContext>();
-builder.Services.AddIdentity<User,Role>().AddEntityFrameworkStores<AppDBContext>();
+builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<AppDBContext>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(typeof(RoleMapper));
@@ -47,6 +37,10 @@ builder.Services.AddTransient<IInvoiceService, InvoiceService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+
+var identityBuilder = builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<AppDBContext>();
+
+
 
 builder.Services.AddAuthentication(x =>
 {
@@ -89,7 +83,10 @@ builder.Services.Configure<IdentityOptions>(options =>
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = true;  // Email là duy nhất
 });
-
+if (!builder.Environment.IsEnvironment("Development"))
+{
+    identityBuilder.AddUserManager<FakeUserManager>();
+}
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -109,3 +106,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+public partial class Program { }

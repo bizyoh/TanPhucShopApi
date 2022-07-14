@@ -79,7 +79,19 @@ namespace TanPhucShopApi.Services.CategoryService
             else
             {
                 mapper.Map(updateCategoryDto,category);
-                if (!CheckCategoryByName(id,category.Name)) throw new AppException(MessageErrors.UniqueCategory);
+                if (!CheckCategoryByName(id, category.Name))
+                {
+                    throw new AppException(MessageErrors.UniqueCategory);
+                }
+                if (category.Status == false)
+                {
+                    var products = db.Products.Where(x => x.CategoryId == category.Id).ToList();
+                    foreach (var product in products)
+                    {
+                        product.Status = false;
+                        db.Update(product);
+                    }
+                }
                 db.Update(category);
                 return db.SaveChanges() > 0;
             }

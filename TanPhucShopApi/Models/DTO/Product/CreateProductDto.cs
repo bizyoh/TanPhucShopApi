@@ -7,7 +7,7 @@
         public int Quantity { get; set; }
         public bool Status { get; set; }
         public string Description { get; set; }
-        public string Photo { get; set; }
         public int CategoryId { get; set; }
+        public IFormFile File { get; set; }
     }
 }

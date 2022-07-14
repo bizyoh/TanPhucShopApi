@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web.Http;
 using TanPhucShopApi.Data;
-using TanPhucShopApi.DTO;
 using TanPhucShopApi.Middleware.Exceptions;
 using TanPhucShopApi.Models;
 using TanPhucShopApi.Models.DTO.InvoiceDto;
@@ -92,6 +87,11 @@ namespace TanPhucShopApi.Services.UserService
                 if(user != null)
                 {
                     throw new AppException(MessageErrors.UniqueUser); 
+                }
+                var checkEmail =await userManager.FindByEmailAsync(registerUserDto.Email);
+                if(checkEmail !=null)
+                {
+                    throw new AppException(MessageErrors.UniqueEmail);
                 }
                 user = mapper.Map<User>(registerUserDto);
                 user.Status = true;
@@ -252,7 +252,6 @@ namespace TanPhucShopApi.Services.UserService
             if (string.IsNullOrEmpty(role)) throw new AppException(MessageErrors.NoRoleRemove);
             else
             {
-                
                     var result = await roleManager.RoleExistsAsync(role);
                 if (result)
                 {
