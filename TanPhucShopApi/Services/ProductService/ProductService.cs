@@ -99,6 +99,8 @@ namespace TanPhucShopApi.Services.ProductService
                 db.Update(currentProduct);
                 if (db.SaveChanges() > 0) return true;
             }
+            throw new KeyNotFoundException(MessageErrors.ItemNotFound);
+            
             return false;
         }
 
