@@ -9,7 +9,7 @@ namespace TanPhucShopApi.Controllers
 {
 
     [Route("api/[controller]")]
-   [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -37,7 +37,6 @@ namespace TanPhucShopApi.Controllers
         public async Task<IActionResult> Create(RegisterUserDto registerUserDto)
         {
             var createdUser = await userService.Create(registerUserDto);
-
             return Created(BASE_URL + "/" + createdUser.Id, createdUser);
         }
 
@@ -92,7 +91,7 @@ namespace TanPhucShopApi.Controllers
 
 
         [HttpGet("admin/{id}/role")]
-        public async Task<IActionResult> FindUserByRole(int id)
+        public async Task<IActionResult> FindUserRoleById(int id)
         {
             var user = await userService.FindUserById(id);
             if (user == null) return NotFound();
@@ -107,22 +106,6 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var user = await userService.FindUserById(id);
-            if (user == null) return NotFound();
-            else
-            {
-                var Result = await userService.Delete(id);
-                if (Result == true)
-                {
-                    return Ok();
-                }
-            }
-            return BadRequest();
-        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
@@ -172,7 +155,5 @@ namespace TanPhucShopApi.Controllers
             if (user!=null) return Ok(user);
             return BadRequest();
         }
-
-       
     }
 }

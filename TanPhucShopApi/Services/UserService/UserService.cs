@@ -62,7 +62,7 @@ namespace TanPhucShopApi.Services.UserService
             var user = await userManager.FindByIdAsync(id.ToString());
             if (await userManager.IsInRoleAsync(user,"Admin"))
             {
-                return false;
+                throw new AppException(MessageErrors.AdminForbbiden);
             }
             if (user == null)
             {
@@ -83,8 +83,8 @@ namespace TanPhucShopApi.Services.UserService
             if (registerUserDto is null) return null;
             else
             {
-                var user = await userManager.FindByNameAsync(registerUserDto.UserName);
-                if(user != null)
+                var checkUser = await userManager.FindByNameAsync(registerUserDto.UserName);
+                if(checkUser != null)
                 {
                     throw new AppException(MessageErrors.UniqueUser); 
                 }
@@ -93,7 +93,8 @@ namespace TanPhucShopApi.Services.UserService
                 {
                     throw new AppException(MessageErrors.UniqueEmail);
                 }
-                user = mapper.Map<User>(registerUserDto);
+                var user = new User();
+                mapper.Map(registerUserDto, user);
                 user.Status = true;
                 var a = db.Database.CreateExecutionStrategy();
                 await a.ExecuteAsync(async () =>
@@ -103,7 +104,7 @@ namespace TanPhucShopApi.Services.UserService
                     if (result.Succeeded)
                     {
 
-                        await userManager.AddToRoleAsync(user, "User");
+                        await userManager.AddToRoleAsync(user, "user");
                         await transaction.CommitAsync();
                         mapper.Map(user, createdUserDto);
                     }
@@ -138,21 +139,7 @@ namespace TanPhucShopApi.Services.UserService
             return new AccessToken { Token = new JwtSecurityTokenHandler().WriteToken(token), ExpirityTime = DateTime.Now.AddMinutes(expirityTime) };
         }
 
-        public async Task Logout()
-        {
-            await signManager.SignOutAsync();
-        }
-
-        public async Task<bool> Delete(int id)
-        {
-            var user = await FindUserById(id);
-            if (user != null)
-            {
-                IdentityResult result = await userManager.DeleteAsync(user);
-                if (result.Succeeded) return true ;
-            }
-            return false;
-        }
+ 
 
         public async Task<DetailUserDto> FindDetailUserDtoById(int id)
         {
@@ -186,7 +173,6 @@ namespace TanPhucShopApi.Services.UserService
             throw new KeyNotFoundException(MessageErrors.NotFound);
         }
 
-
         public async Task<User> FindUserById(int id)
         {
             return await userManager.FindByIdAsync(id.ToString());
@@ -202,6 +188,7 @@ namespace TanPhucShopApi.Services.UserService
                 LastName = p.LastName,
                 PhoneNumber = p.PhoneNumber,
                 Address = p.Address,
+                Status = p.Status,
                 Email = p.Email,
             }).ToList();
       
@@ -242,7 +229,7 @@ namespace TanPhucShopApi.Services.UserService
                     }
                 }
             }
-            return null;
+            throw new KeyNotFoundException(MessageErrors.Login);
         }
 
         public async Task<bool> RemoveRoleUser(int id, string role)
@@ -289,8 +276,14 @@ namespace TanPhucShopApi.Services.UserService
         public async Task<bool> UpdateByAdmin(int id, PostAdminUpdateUserDto postAdminUpdateUserDto)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
+            var listUsers = db.Users.Where(x => x.Email == postAdminUpdateUserDto.Email && x.Email != user.Email).ToList();
+            if (listUsers.Count >= 1)
+            {
+                throw new AppException(MessageErrors.UniqueEmail);
+            }
             if (user is null) throw new AppException(MessageErrors.NotFound);
             mapper.Map(postAdminUpdateUserDto,user);
+            
             var result = await userManager.UpdateAsync(user);
             if (result.Succeeded) return true;
             else throw new AppException(MessageErrors.UpdateUserFail);
@@ -307,17 +300,8 @@ namespace TanPhucShopApi.Services.UserService
             return token;
         }
 
-        private List<Claim> DecodeToken(string token)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var tokenDecode = handler.ReadJwtToken(token);
-            var claims = tokenDecode.Claims.Where(x => x.Type == "Role").ToList();
-            return claims;
-        }
-
         public GetUserRoleDto FindUserRoleDtoById(int id)
         {
-
             var user = db.Users.FirstOrDefault(x => x.Id == id);
             GetUserRoleDto userDto = mapper.Map<GetUserRoleDto>(user);
             List<DetailRoleDto> roleDtos = mapper.Map<List<DetailRoleDto>>(user.Roles);

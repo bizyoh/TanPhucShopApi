@@ -4,10 +4,12 @@
     {
         public static string UniqueUser = "User Has been Used";
         public static string UniqueEmail = "Email Has been Used";
+        public static string Login = "Account is not Exist!";
         public static string NotFound = "User Not Found";
         public static string ItemNotFound = "Item Not Found";
         public static string NoRoleAdd = "Roles is invalid";
         public static string RoleNotFound = "Role not found!";
+        public static string AdminForbbiden = "Admin Role Status cannot be change";
         public static string RoleNameExist = "This role Name has already been exists!";
         public static string NoRoleRemove = "Roles is invalid";
         public static string CannotAddRole = "Cannot Add Role to User!";

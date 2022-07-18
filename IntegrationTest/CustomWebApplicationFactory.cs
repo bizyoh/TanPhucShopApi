@@ -1,7 +1,10 @@
 
+using IntegrationTest.Utilities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +20,7 @@ namespace IntegrationTest
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-        
+            builder.UseEnvironment("Testing");
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(
@@ -30,13 +33,6 @@ namespace IntegrationTest
                 {
                     options.UseInMemoryDatabase("InMemoryDbForTesting").ConfigureWarnings(w=>w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
                 });
-
-                descriptor = services.FirstOrDefault(
-                   d => d.ServiceType ==
-                       typeof(UserManager<User>));
-
-                services.Remove(descriptor);
-                services.AddScoped<FakeUserManager>();
 
                 var sp = services.BuildServiceProvider();
                
@@ -60,6 +56,12 @@ namespace IntegrationTest
                             "database with test messagess. Error: {Message}", ex.Message);
                     }
                 }
+            });
+            builder.ConfigureTestServices(services =>
+            {
+                //services.Configure<TestAuthHandlerOptions>(options => options.RoleUser = RoleUser);
+                services.AddAuthentication(TestAuthHandler.AuthenticationScheme)
+                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, options => { });
             });
         }
     }

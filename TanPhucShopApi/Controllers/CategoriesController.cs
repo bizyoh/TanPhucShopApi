@@ -32,7 +32,6 @@ namespace TanPhucShopApi.Controllers
         public IActionResult GetDetailCategoryDtoById(int id)
         {
             var detailCategoryDto = categoryService.GetDetailCategoryDtoById(id);
-            if (detailCategoryDto == null) return NotFound();
             return Ok(detailCategoryDto);
         }
 

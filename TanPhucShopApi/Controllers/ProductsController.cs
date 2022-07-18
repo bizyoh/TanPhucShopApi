@@ -31,7 +31,6 @@ namespace TanPhucShopApi.Controllers
             return Ok(products);
         }
 
-
         [HttpGet]
         [AllowAnonymous]
         public IActionResult GetAllProduct()
@@ -65,6 +64,7 @@ namespace TanPhucShopApi.Controllers
             return Ok(products);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Create([FromForm]CreateProductDto createProductDto)
         {
@@ -87,27 +87,14 @@ namespace TanPhucShopApi.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("id")]
-        public IActionResult Delete(int id)
-        {
-            var product = productService.GetById(id);
-            if (product == null) return NotFound();
-            else
-            {
-                var result = productService.HardDelete(id);
-                if(result) return Ok();
-            }
-            return BadRequest();
-        }
+     
 
         [HttpPost("{id}/uploadphoto")]
         public IActionResult UploadPhoto( int id,  IFormFile file)
         {
             productService.UploadPhoto(id, file);
             return Ok();
-       
-            return BadRequest();
-           
+            return BadRequest(); 
         }
 
         [AllowAnonymous]
@@ -132,6 +119,23 @@ namespace TanPhucShopApi.Controllers
             else
             {
                 return Ok(product);
+            }
+            return BadRequest();
+        }
+
+       
+        [HttpGet("{id}/status")]
+        public IActionResult ChangeStatusProduct(int id)
+        {
+            var product = productService.GetDetailProductDtoById(id);
+            if (product == null) return NotFound();
+            else
+            {
+                if (productService.ChangeProductStatus(id))
+                {
+                    return Ok();
+                }
+
             }
             return BadRequest();
         }

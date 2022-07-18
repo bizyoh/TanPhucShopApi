@@ -78,7 +78,6 @@ namespace TanPhucShopApi.Services.RoleService
 
         public async Task<bool> Update(int id, UpdateRoleDto updateRoleDto)
         {
-            
             var currentRole = await roleManager.FindByIdAsync(id.ToString());
             if(currentRole is null) throw new KeyNotFoundException(MessageErrors.RoleNotFound);
             else 

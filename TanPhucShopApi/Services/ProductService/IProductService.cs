@@ -18,6 +18,7 @@ namespace TanPhucShopApi.Services.ProductService
         public Task<ProductCartDto> GetProductCartDtoById(int id);
         public List<GetAllProductDto> GetAllProductsDtoByCategoryId(int categoryId);
         public List<ProductAdminViewModel> GetAllProductAdminViewModel();
+        public bool ChangeProductStatus(int id);
 
     }
 }

@@ -9,7 +9,7 @@ using TanPhucShopApi.Services.UserService;
 
 namespace TanPhucShopApi.Controllers
 {
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class RolesController : ControllerBase
@@ -27,7 +27,7 @@ namespace TanPhucShopApi.Controllers
         [HttpGet]
         public IActionResult GetAllRoleDto()
         {
-            var roles =  roleService.GetAllRoles();
+            var roles = roleService.GetAllRoles();
             return Ok(roles);
         }
 
@@ -35,21 +35,21 @@ namespace TanPhucShopApi.Controllers
         public async Task<IActionResult> Create([FromBody] CreateRoleDto role)
         {
             var result = await roleService.Create(role);
-            if(result) return Ok();
+            if (result) return Ok();
             return BadRequest();
         }
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id,[FromBody] UpdateRoleDto role)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto role)
         {
-            if(roleService.GetRoleById(id)==null) throw new KeyNotFoundException(MessageErrors.RoleNotFound);
-            var result = await roleService.Update(id,role);
+            if (roleService.GetRoleById(id) == null) throw new KeyNotFoundException(MessageErrors.RoleNotFound);
+            var result = await roleService.Update(id, role);
             if (result) return Ok();
             return BadRequest();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             if (await roleService.GetRoleById(id) == null) return NotFound();

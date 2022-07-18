@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers().AddFluentValidation(opts => opts.RegisterValidatorsFromAssembly(typeof(RegisterUserDtoValidator).Assembly))
-    .AddNewtonsoftJson(options =>options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+    .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 builder.Services.AddDbContext<AppDBContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseLazyLoadingProxies());
 builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<AppDBContext>();
@@ -30,19 +30,21 @@ builder.Services.AddAuthorization();
 builder.Services.AddAutoMapper(typeof(RoleMapper));
 builder.Services.AddAutoMapper(typeof(UserMapper));
 builder.Services.AddScoped<SignInManager<User>>();
-builder.Services.AddScoped<UserManager<User>>();
-builder.Services.AddScoped<RoleManager<Role>>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IInvoiceService, InvoiceService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 
-var identityBuilder = builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<AppDBContext>();
+//var identityBuilder = builder.Services.AddIdentityCore<User>().AddRoles<Role>().AddEntityFrameworkStores<AppDBContext>();
+//if (builder.Environment.IsEnvironment("Testing"))
+//{
+//    identityBuilder.AddUserManager<FakeUserManager>();
+//}
 
-
-
-builder.Services.AddAuthentication(x =>
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -62,33 +64,15 @@ builder.Services.AddAuthentication(x =>
         IssuerSigningKey = new SymmetricSecurityKey(Key)
     };
 });
+}
 
+builder.Services.AddSwaggerGen();
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    // Thiết lập về Password
-    options.Password.RequireDigit = true; // Không bắt phải có số
-    options.Password.RequireLowercase = false; // Không bắt phải có chữ thường
-    options.Password.RequireNonAlphanumeric = false; // Không bắt ký tự đặc biệt
-    options.Password.RequireUppercase = false; // Không bắt buộc chữ in
-    options.Password.RequiredLength = 6; // Số ký tự tối thiểu của password
-    options.Password.RequiredUniqueChars = 0; // Số ký tự riêng biệt
-
-    // Cấu hình Lockout - khóa user
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Khóa 5 phút
-    options.Lockout.MaxFailedAccessAttempts = 5; // Thất bại 5 lầ thì khóa
-    options.Lockout.AllowedForNewUsers = true;
-
-    // Cấu hình về User.
-    options.User.AllowedUserNameCharacters = // các ký tự đặt tên user
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    options.User.RequireUniqueEmail = true;  // Email là duy nhất
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+    options.User.RequireUniqueEmail = true;
 });
-if (!builder.Environment.IsEnvironment("Development"))
-{
-    identityBuilder.AddUserManager<FakeUserManager>();
-}
-builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

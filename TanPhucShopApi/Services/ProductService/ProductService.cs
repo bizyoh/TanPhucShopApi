@@ -27,7 +27,9 @@ namespace TanPhucShopApi.Services.ProductService
         }
         public CreatedProductDto Create(CreateProductDto createProductDto)
         {
+            var photo= UploadPhoto(createProductDto.File);
             var product = mapper.Map<Product>(createProductDto);
+            product.Photo = photo;
             product.Created = DateTime.Now;
             db.Products.Add(product);
             if (db.SaveChanges() > 0)
@@ -94,6 +96,10 @@ namespace TanPhucShopApi.Services.ProductService
             var currentProduct = db.Products.Find(id);
             if (currentProduct != null)
             {
+                if(updateProductDto.Photo is null)
+                {
+                    updateProductDto.Photo = currentProduct.Photo;
+                }
                 mapper.Map(updateProductDto, currentProduct);
 
                 db.Update(currentProduct);
@@ -116,8 +122,33 @@ namespace TanPhucShopApi.Services.ProductService
             return true;
         }
 
+        public bool ChangeProductStatus(int id)
+        {
+            var product = db.Products.FirstOrDefault(x => x.Id == id);
+            if(product != null)
+            {
+                product.Status = !product.Status;
+                db.Update(product);
+                return db.SaveChanges() > 0;
+            }
+            throw new AppException(MessageErrors.ItemNotFound);
+        }
+        public string UploadPhoto(IFormFile file)
+        {
+            string fileName = GenerateFileName(file);
+            var path = Path.Combine(webHostEnvironment.WebRootPath, "images/products", fileName);
+            using (var fileStream = new FileStream(path, FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
+            var baseURL = httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host + httpContextAccessor.HttpContext.Request.PathBase;
+            return fileName;
+           
+        }
+
         public dynamic UploadPhoto(int id, IFormFile file)
         {
+            if (db.Products.Find(id) == null) throw new KeyNotFoundException(MessageErrors.ItemNotFound);
             string fileName = GenerateFileName(file);
 
             var path = Path.Combine(webHostEnvironment.WebRootPath, "images/products", fileName);

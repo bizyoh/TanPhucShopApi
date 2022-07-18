@@ -27,4 +27,10 @@
     <ProjectReference Include="..\TanPhucShopApi\TanPhucShopApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="PhotoTest\avata.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
